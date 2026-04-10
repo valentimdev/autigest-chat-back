@@ -1,19 +1,19 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: nest-auth-template
-    ports:
-      - '3000:3000'
-    command: sh -c "npx prisma db push && npm run start:prod"
-    environment:
-      PORT: 3000
-      JWT_SECRET: hello_change_on_prod
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/chat_autigest?schema=public
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: nest-auth-template
+  #   ports:
+  #     - '3000:3000'
+  #   command: sh -c "npx prisma db push && npm run start:prod"
+  #   environment:
+  #     PORT: 3000
+  #     JWT_SECRET: hello_change_on_prod
+  #     DATABASE_URL: postgresql://postgres:postgres@postgres:5432/chat_autigest?schema=public
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
 
   postgres:
     image: postgres:16-alpine
