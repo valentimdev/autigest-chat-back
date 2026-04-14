@@ -11,6 +11,7 @@ import {
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CreateDirectConversationDto } from './dto/create-direct-conversation.dto';
 import { GetConversationMessagesQueryDto } from './dto/get-conversation-messages-query.dto';
+import { SendMessageDto } from './dto/send-message.dto';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -46,6 +47,16 @@ export class ChatController {
     return this.chatService.createOrGetDirectConversation(
       request.user.userId,
       body.targetUserId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('messages')
+  sendMessage(@Request() request, @Body() body: SendMessageDto) {
+    return this.chatService.createMessage(
+      request.user.userId,
+      body.conversationId,
+      body.content.trim(),
     );
   }
 }

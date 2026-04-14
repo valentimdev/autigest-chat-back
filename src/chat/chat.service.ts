@@ -21,7 +21,7 @@ export class ChatService {
         conversationId,
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc',
       },
       take,
       include: {
@@ -34,7 +34,7 @@ export class ChatService {
       },
     });
 
-    return messages.map((message) => ({
+    return messages.reverse().map((message) => ({
       id: message.id,
       content: message.content,
       createdAt: message.createdAt,
@@ -56,20 +56,31 @@ export class ChatService {
   async createMessage(userId: number, conversationId: number, content: string) {
     await this.ensureConversationAccess(userId, conversationId);
 
-    const message = await this.prisma.message.create({
-      data: {
-        conversationId,
-        senderId: userId,
-        content,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            username: true,
+    const message = await this.prisma.$transaction(async (prisma) => {
+      const createdMessage = await prisma.message.create({
+        data: {
+          conversationId,
+          senderId: userId,
+          content,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+            },
           },
         },
-      },
+      });
+
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+
+      return createdMessage;
     });
 
     return {
