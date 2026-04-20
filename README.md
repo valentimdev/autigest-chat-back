@@ -30,9 +30,12 @@ npm install
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/chat_autigest?schema=public
+DIRECT_URL=postgresql://postgres:postgres@localhost:5432/chat_autigest?schema=public
 JWT_SECRET=change-me-in-production
 PORT=3000
 ```
+
+For Supabase, use the pooled connection in `DATABASE_URL` for the app runtime and the direct connection in `DIRECT_URL` for Prisma CLI commands such as `migrate` and `db push`.
 
 3. Generate Prisma client and sync the database:
 

@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+
 }
 
 enum ConversationType {
@@ -19,6 +20,7 @@ model User {
   updatedAt        DateTime                  @updatedAt
   conversations    ConversationParticipant[]
   messageReads     MessageRead[]
+  pushTokens       PushToken[]
   sentMessages     Message[]
 }
 
@@ -71,4 +73,19 @@ model MessageRead {
   @@unique([messageId, userId])
   @@index([userId])
   @@index([messageId])
+}
+
+model PushToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  token      String   @unique
+  platform   String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastUsedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isActive])
 }
