@@ -23,7 +23,7 @@ export class NotificationsController {
   sendToUser(@Request() request, @Body() body: SendPushToUserDto) {
     return this.notificationsService.sendToUser({
       senderUserId: request.user.userId,
-      targetUserId: body.targetUserId,
+      targetUsername: body.targetUsername,
       title: body.title ?? 'Nova notificacao',
       body: body.body ?? 'Voce recebeu uma notificacao',
     });

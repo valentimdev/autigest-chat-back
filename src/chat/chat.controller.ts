@@ -46,7 +46,7 @@ export class ChatController {
   ) {
     return this.chatService.createOrGetDirectConversation(
       request.user.userId,
-      body.targetUserId,
+      body.targetUsername,
     );
   }
 

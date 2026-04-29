@@ -759,6 +759,60 @@ Notifications.setNotificationHandler({
 });
 ```
 
+---
+
+## 21. Erro Android: `Default FirebaseApp is not initialized in this process`
+
+Se ao pedir permissao ou gerar o token o app ficar em `requesting` e aparecer a mensagem abaixo:
+
+```txt
+Default FirebaseApp is not initialized in this process. Make sure to call FirebaseApp.initializeApp(Context) first.
+```
+
+isso normalmente significa que o binario Android foi gerado sem a configuracao nativa do Firebase Cloud Messaging.
+
+### Causa real
+
+No Expo/React Native, `Notifications.getExpoPushTokenAsync()` no Android depende do Firebase/FCM configurado no app nativo.
+
+Se o build nao tiver:
+
+- `google-services.json`
+- `expo.android.googleServicesFile` no app config
+- rebuild nativo depois dessa configuracao
+
+o token nao sera gerado.
+
+### Como corrigir
+
+1. baixe o arquivo `google-services.json` do projeto Firebase correto
+2. salve esse arquivo dentro do frontend
+3. adicione no `app.json` algo como:
+
+```json
+{
+  "expo": {
+    "android": {
+      "package": "com.valentimdev1.chattest",
+      "googleServicesFile": "./google-services.json"
+    }
+  }
+}
+```
+
+4. gere um novo build Android
+5. reinstale o app no dispositivo
+
+### Importante
+
+So alterar o JavaScript nao basta.
+
+A configuracao do Firebase entra no app durante o build nativo. Se voce continuar usando um build antigo, o erro vai continuar.
+
+### Ajuste no frontend
+
+O frontend deve marcar o status como `error` quando isso acontecer, em vez de deixar a tela presa em `requesting`.
+
 Tambem pode escutar eventos:
 
 ```ts

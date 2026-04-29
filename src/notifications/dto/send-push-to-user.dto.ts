@@ -1,9 +1,9 @@
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class SendPushToUserDto {
-  @IsInt()
-  @Min(1)
-  targetUserId: number;
+  @IsString()
+  @MinLength(1)
+  targetUsername: string;
 
   @IsOptional()
   @IsString()

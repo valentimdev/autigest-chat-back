@@ -190,23 +190,25 @@ export class ChatService {
     }));
   }
 
-  async createOrGetDirectConversation(userId: number, targetUserId: number) {
-    if (userId === targetUserId) {
+  async createOrGetDirectConversation(userId: number, targetUsername: string) {
+    const normalizedUsername = targetUsername.trim();
+
+    const targetUser = await this.prisma.user.findUnique({
+      where: { username: normalizedUsername },
+      select: { id: true, username: true },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException('Usuario nao encontrado');
+    }
+
+    if (userId === targetUser.id) {
       throw new BadRequestException(
         'You cannot create a direct conversation with yourself',
       );
     }
 
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: targetUserId },
-      select: { id: true, username: true },
-    });
-
-    if (!targetUser) {
-      throw new NotFoundException('Target user not found');
-    }
-
-    const directKey = this.buildDirectKey(userId, targetUserId);
+    const directKey = this.buildDirectKey(userId, targetUser.id);
 
     const conversation = await this.prisma.conversation.upsert({
       where: { directKey },
@@ -215,7 +217,7 @@ export class ChatService {
         type: 'DIRECT',
         directKey,
         participants: {
-          create: [{ userId }, { userId: targetUserId }],
+          create: [{ userId }, { userId: targetUser.id }],
         },
       },
       include: {

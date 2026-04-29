@@ -1,7 +1,7 @@
-import { IsInt, IsPositive } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 
 export class CreateDirectConversationDto {
-  @IsInt()
-  @IsPositive()
-  targetUserId: number;
+  @IsString()
+  @MinLength(1)
+  targetUsername: string;
 }

@@ -44,28 +44,28 @@ export class NotificationsService {
 
   async sendToUser(input: {
     senderUserId: number;
-    targetUserId: number;
+    targetUsername: string;
     title: string;
     body: string;
   }) {
-    if (input.senderUserId === input.targetUserId) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: { username: input.targetUsername.trim() },
+      select: { id: true, username: true },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException('Usuario nao encontrado');
+    }
+
+    if (input.senderUserId === targetUser.id) {
       throw new BadRequestException(
         'Voce nao pode enviar notificacao para si mesmo',
       );
     }
 
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: input.targetUserId },
-      select: { id: true, username: true },
-    });
-
-    if (!targetUser) {
-      throw new NotFoundException('Usuario de destino nao encontrado');
-    }
-
     const activeTokens = await this.prisma.pushToken.findMany({
       where: {
-        userId: input.targetUserId,
+        userId: targetUser.id,
         isActive: true,
       },
       select: {
@@ -90,7 +90,8 @@ export class NotificationsService {
       data: {
         type: 'manual_notification',
         senderUserId: input.senderUserId,
-        targetUserId: input.targetUserId,
+        targetUserId: targetUser.id,
+        targetUsername: targetUser.username,
       },
     }));
 
